@@ -109,7 +109,9 @@ class PlantModel extends ChangeNotifier {
     p.wateringFrequency = plantMap['frequency'] ?? 7;
     p.image = plantMap['image'] ?? '';
     p.wateringMethod = plantMap['wateringMethod'] ?? "";
-    var hist = List<String>.from(plantMap['watinergHistory'] ?? []);
+
+    // An earlier version of water-me had a typo in this field name. We still load the old field name for backwards compatibility
+    var hist = List<String>.from(plantMap['wateringHistory'] ?? plantMap['watinergHistory'] ?? []);
     p.wateringHistory = hist.map((e) => DateTime.parse(e)).toList();
     return p;
   }
@@ -120,7 +122,8 @@ class PlantModel extends ChangeNotifier {
     data['frequency'] = wateringFrequency;
     data['image'] = image;
     data['wateringMethod'] = wateringMethod;
-    data['watinergHistory'] = wateringHistory.map((e) => e.toString()).toList();
+
+    data['wateringHistory'] = wateringHistory.map((e) => e.toString()).toList();
     return data;
   }
 

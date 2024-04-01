@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -8,14 +9,27 @@ import 'package:water_me/models/plant_model.dart';
 import 'package:water_me/screens/plant_edit.dart';
 import 'package:water_me/screens/plant_list_entry.dart';
 import 'package:water_me/theme.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../main.dart';
 import '../models/app_model.dart';
 
-class MyPlants extends StatelessWidget {
-  const MyPlants({super.key});
+class MyPlants extends StatefulWidget {
+  MyPlants({super.key});
+
+  @override
+  State<MyPlants> createState() => _MyPlantsState();
+}
+
+class _MyPlantsState extends State<MyPlants> {
+  String _search = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _search = "";
+  }
+
 
   Widget emptyList(BuildContext context) => Container(
       height: MediaQuery.of(context).size.height,
@@ -50,15 +64,38 @@ class MyPlants extends StatelessWidget {
               value: m.plants[index],
               builder: (c, child) {
                 var last = index == m.plants.length - 1;
-                return PlantListEntry(lastEntry: last);
+                return Visibility(
+                    child: PlantListEntry(lastEntry: last),
+                    visible: m.plants[index].plantName
+                        .toLowerCase()
+                        .contains(_search));
               });
         },
       ));
 
+  Widget listWithSearch(BuildContext context, AppModel m) => Column(children: [
+        Padding(
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+            child: TextFormField(
+              onChanged: (v) {
+                setState(() {
+                  _search = v;
+                });
+              },
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Enter a search term',
+              ),
+            )),
+        list(context, m)
+      ]);
+
   AppBar appBar(BuildContext context) => AppBar(
         elevation: 0.1,
         backgroundColor: c1,
-        title: const Text("Plants"),
+        foregroundColor: Colors.white,
+        title: const Text("Plants", style: TextStyle(color: Colors.white)),
         actions: <Widget>[
           PopupMenuButton(
               icon: const Icon(Icons.add),
@@ -125,7 +162,8 @@ class MyPlants extends StatelessWidget {
                             text: "Water-Me is built by abertschi.\n\n",
                           ),
                           TextSpan(
-                            style: const TextStyle(color: Colors.black,
+                            style: const TextStyle(
+                                color: Colors.black,
                                 decoration: TextDecoration.underline),
                             text: "https://abertschi.ch\n\n",
                             recognizer: TapGestureRecognizer()
@@ -139,7 +177,8 @@ class MyPlants extends StatelessWidget {
                             text: "version ${packageInfo.version}",
                             recognizer: TapGestureRecognizer()
                               ..onTap = () async {
-                                const url = 'https://github.com/abertschi/water-me/blob/master/CHANGELOG';
+                                const url =
+                                    'https://github.com/abertschi/water-me/blob/master/CHANGELOG';
                                 await launchUrlString(url);
                               },
                           ),
@@ -217,7 +256,9 @@ class MyPlants extends StatelessWidget {
         appBar: appBar(context),
         body: Consumer<AppModel>(
             builder: (BuildContext context, AppModel m, Widget? child) {
-          return m.plants.isEmpty ? emptyList(context) : list(context, m);
+          return m.plants.isEmpty
+              ? emptyList(context)
+              : listWithSearch(context, m);
         }));
   }
 }
