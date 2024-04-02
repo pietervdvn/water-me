@@ -30,7 +30,6 @@ class _MyPlantsState extends State<MyPlants> {
     _search = "";
   }
 
-
   Widget emptyList(BuildContext context) => Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -52,14 +51,29 @@ class _MyPlantsState extends State<MyPlants> {
             ))
       ]));
 
-  Widget list(BuildContext context, AppModel m) => Container(
-      margin: const EdgeInsets.only(top: 0.0),
-      // decopration: BoxDecoration(color: Color.fromRGBO(58, 66, 86, 1.0)),
-      child: ListView.builder(
+  Widget list(BuildContext context, AppModel m) => ListView.builder(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
-        itemCount: m.plants.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemCount: m.plants.length + 1,
+        itemBuilder: (BuildContext context, int indexReal) {
+          if(indexReal == 0) {
+            return Padding(
+                padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+                child: TextFormField(
+                  onChanged: (v) {
+                    setState(() {
+                      _search = v;
+                    });
+                  },
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter a search term',
+                  ),
+                ));
+          }
+
+          var index = indexReal - 1;
           return ChangeNotifierProvider.value(
               value: m.plants[index],
               builder: (c, child) {
@@ -71,25 +85,7 @@ class _MyPlantsState extends State<MyPlants> {
                         .contains(_search));
               });
         },
-      ));
-
-  Widget listWithSearch(BuildContext context, AppModel m) => Column(children: [
-        Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-            child: TextFormField(
-              onChanged: (v) {
-                setState(() {
-                  _search = v;
-                });
-              },
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter a search term',
-              ),
-            )),
-        list(context, m)
-      ]);
+      );
 
   AppBar appBar(BuildContext context) => AppBar(
         elevation: 0.1,
@@ -258,7 +254,7 @@ class _MyPlantsState extends State<MyPlants> {
             builder: (BuildContext context, AppModel m, Widget? child) {
           return m.plants.isEmpty
               ? emptyList(context)
-              : listWithSearch(context, m);
+              : list(context, m);
         }));
   }
 }
