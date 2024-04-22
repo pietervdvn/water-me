@@ -94,7 +94,8 @@ class PlantModel extends ChangeNotifier {
     p.plantName = plantMap['name'] ?? '';
     p.wateringFrequency = plantMap['frequency'] ?? 7;
     p.image = plantMap['image'] ?? '';
-    // An earlier version of water-me had a typo in this field name. We still load the old field name for backwards compatibility
+    // XXX: An earlier version of water-me had a typo in this field name.
+    // We still load the old field name for backwards compatibility
     var hist = List<String>.from(plantMap['wateringHistory'] ?? plantMap['watinergHistory'] ?? []);
     p.wateringHistory = hist.map((e) => DateTime.parse(e)).toList();
     return p;
